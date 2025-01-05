@@ -1,0 +1,16 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f8f9fa; /* Light background */
+    margin: 0;
+    padding: 0;
+}
+
+h1 {
+    color: #343a40; /* Dark grey for headings */
+}
+
+.table {
+    margin-top: 20px;
+    border: 1px solid #dee2e6;
+    border-radius: 5px;
+}

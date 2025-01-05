@@ -1,0 +1,116 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background: url('./Assets/images/l&r.jpg') no-repeat center center fixed;
+    background-size: cover;
+}
+
+.container {
+    background-color: rgba(255, 255, 255, 0.9);
+    border-radius: 10px;
+    padding: 30px 40px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    width: 400px; /* Adjust width */
+    max-width: 90%; /* Make responsive */
+    text-align: center;
+    margin: 10px;
+}
+
+.form-title {
+    font-size: 1.8rem;
+    font-weight: bold;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.input-group {
+    position: relative;
+    margin-bottom: 20px;
+}
+
+.input-group i {
+    position: absolute;
+    top: 50%;
+    left: 10px;
+    transform: translateY(-50%);
+    font-size: 1.2rem;
+    color: #888;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 10px 10px 10px 40px; /* Ensure space for the icon */
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    outline: none;
+    transition: all 0.3s ease;
+    box-sizing: border-box;
+}
+
+.input-group input:focus {
+    border-color: #555;
+}
+
+.input-group label {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.btn {
+    background-color: #007bff;
+    color: #fff;
+    font-size: 1rem;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+    width: 100%;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+.recover {
+    margin-top: 10px;
+}
+
+.recover a {
+    text-decoration: none;
+    font-size: 0.9rem;
+    color: #007bff;
+}
+
+.recover a:hover {
+    text-decoration: underline;
+}
+
+.links {
+    margin-top: 15px;
+}
+
+.links p {
+    font-size: 0.9rem;
+    color: #555;
+}
+
+.links button {
+    background: none;
+    border: none;
+    color: #007bff;
+    font-size: 0.9rem;
+    cursor: pointer;
+}
+
+.links button:hover {
+    text-decoration: underline;
+}
