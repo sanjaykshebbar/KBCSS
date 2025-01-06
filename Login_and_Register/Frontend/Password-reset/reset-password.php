@@ -38,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 session_destroy();
 
                 // Redirect with a success message
-                header("Location: ../index.php?message=Password successfully reset. Please login.");
+                header("Location: ../../../index.html?message=Password successfully reset. Please login.");
                 exit;
             } else {
                 $error = "Error updating password: " . $stmt->error;

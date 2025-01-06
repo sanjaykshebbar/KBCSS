@@ -1,4 +1,14 @@
 <?php
+
+session_start();
+
+// Check if the user is logged in, is an Admin, and is active
+if (!isset($_SESSION['email']) || $_SESSION['userType'] !== 'Admin') {
+    echo "<script>alert('Unauthorized access. Please log in as an Administrator.'); 
+    window.location.href = '../login.php';</script>";
+    exit();
+}
+
 // Include the database connection file
 require_once '../php/db_connection.php';
 
@@ -175,6 +185,40 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         .message {
             margin-bottom: 20px;
         }
+
+        .action-buttons {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 10px 15px;
+            font-size: 16px;
+            font-weight: 500;
+            border-radius: 5px;
+            text-decoration: none;
+            text-align: center;
+            transition: background-color 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: #2196f3;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: #1976d2;
+        }
+
+        .btn-danger {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background-color: #d32f2f;
+        }
     </style>
 </head>
 <body>
@@ -237,6 +281,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
         <input type="submit" value="Add User">
     </form>
+
+    <!-- Action Buttons -->
+    <div class="action-buttons">
+        <a href="../index.php" class="btn btn-primary">Go-Back</a>
+        <a href="../logout.php?logout=true" class="btn btn-danger">Logout</a>
+    </div>
+
 </div>
 
 <?php if (!empty($errorMessage)) { ?>

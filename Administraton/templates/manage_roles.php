@@ -1,5 +1,4 @@
 <?php
-
 session_start();
 
 // Check if the user is logged in, is an Admin, and is active
@@ -88,12 +87,32 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['user_id'], $_POST['use
             margin: 0 auto;
             padding: 20px;
             background-color: #fff;
-            background-image: url('../Assets/Images/container.jpg'); /* Replace with your image URL */
-            background-size: cover; /* Ensures the image covers the entire container */
-            background-position: center; /* Centers the image */
             border-radius: 10px;
             box-shadow: 0 4px 24px rgba(0, 0, 0, 0.3);
         }
+
+        .action-buttons {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .action-buttons a {
+            padding: 10px 20px;
+            text-decoration: none;
+            color: white;
+            border-radius: 5px;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background-color: #007bff;
+        }
+
+        .btn-danger {
+            background-color: #dc3545;
+        }
+
         .summary {
             display: flex;
             justify-content: space-around;
@@ -163,37 +182,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['user_id'], $_POST['use
             background-color: #fff;
             color: #333;
         }
-
-        .popupMessage, .popupError {
-            display: none;
-            padding: 15px;
-            border-radius: 5px;
-            position: fixed;
-            top: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            z-index: 9999;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-            max-width: 400px;
-            width: 100%;
-            text-align: center;
-        }
-
-        .popupMessage {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .popupError {
-            background-color: #dc3545;
-            color: white;
-        }
     </style>
 </head>
 <body>
-
     <div class="container">
         <h1>Manage User Roles</h1>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="../index.php" class="btn btn-primary">Go-Back</a>
+            <a href="../logout.php?logout=true" class="btn btn-danger">Logout</a>
+        </div>
 
         <!-- Summary Section -->
         <div class="summary">
@@ -218,12 +217,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['user_id'], $_POST['use
                 <span><?php echo $counts['inactive_count']; ?></span>
             </div>
         </div>
-
-        <!-- Success popup message -->
-        <div id="popupMessage" class="popupMessage"></div>
-
-        <!-- Error popup message -->
-        <div id="popupError" class="popupError"></div>
 
         <!-- Table to display users and their roles -->
         <table>
@@ -261,28 +254,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['user_id'], $_POST['use
             </tbody>
         </table>
     </div>
-
-    <script>
-        // Function to show success message
-        function showSuccessMessage(message) {
-            var popup = document.getElementById('popupMessage');
-            popup.innerHTML = message;
-            popup.style.display = 'block';
-            setTimeout(function() {
-                popup.style.display = 'none';
-            }, 5000);
-        }
-
-        // Function to show error message
-        function showErrorMessage(message) {
-            var popup = document.getElementById('popupError');
-            popup.innerHTML = message;
-            popup.style.display = 'block';
-            setTimeout(function() {
-                popup.style.display = 'none';
-            }, 5000);
-        }
-    </script>
-
 </body>
 </html>

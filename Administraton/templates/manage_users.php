@@ -32,10 +32,17 @@ $stmt->execute();
 $roleSummary = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 
-// Populate the roles array with the counts from the query
+// Populate the roles array dynamically based on query results
 foreach ($roleSummary as $role) {
     $roles[$role['userType']] = (int) $role['count'];
 }
+
+// Ensure all roles have default values for missing keys
+$roles = array_merge(
+    ['yet-to-confirm' => 0, 'Admin' => 0, 'Student' => 0, 'Faculty' => 0],
+    $roles
+);
+
 
 // Fetch all users for the table
 $query = "SELECT id, firstname, lastname, username, email, phone, userType, userState FROM users";
@@ -215,7 +222,11 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </head>
 <body>
     <div class="container">
-        <!-- Header Summary -->
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            <a href="../index.php" class="btn btn-primary">Go-Back</a>
+            <a href="../logout.php?logout=true" class="btn btn-danger">Logout</a>
+        </div> 
         <div class="header-summary">
             <h1 class="text-center">User Management Dashboard</h1>
             <div class="summary-container">
@@ -237,6 +248,12 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 </div>
             </div>
         </div>
+
+
+
+
+
+
 
         <!-- User Table -->
         <h2 class="text-center mb-4">Manage Users</h2>
@@ -293,5 +310,5 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
             document.getElementById(`submit-${userId}`).click(); // Trigger the form submission
         }
     </script>
-</body>
+    </body>
 </html>

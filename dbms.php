@@ -60,6 +60,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             echo "<script>alert('Selected records deleted successfully!'); window.location.href = window.location.href;</script>";
         }
     }
+
+    // Execute custom SQL query
+    $output = '';
+    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['custom_sql_query'])) {
+        $query = $_POST['sql_query'] ?? '';
+        if (!empty($query)) {
+            try {
+                $stmt = $conn->prepare($query);
+                $stmt->execute();
+                $output = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            } catch (PDOException $e) {
+                $output = "Error: " . $e->getMessage();
+            }
+        }
+    }
 }
 
 // Table list for displaying records
@@ -158,12 +173,12 @@ $tableNames = ['users', 'login_activity', 'password_resets'];
         <div class="tab" onclick="switchTab(1)">Users Table (View & Delete)</div>
         <div class="tab" onclick="switchTab(2)">Login Activity Table (View & Delete)</div>
         <div class="tab" onclick="switchTab(3)">Password Resets Table (View & Delete)</div>
+        <div class="tab" onclick="switchTab(4)">Execute SQL Query</div>
     </div>
 
     <!-- Data Entry Sheet (for Users Table) -->
     <div class="tab-content active">
         <h3>Data Entry for Users</h3>
-
         <form method="POST">
             <div>
                 <h4>Enter User Details (JSON Format will be generated on clicking Generate MD5)</h4>
@@ -290,6 +305,43 @@ $tableNames = ['users', 'login_activity', 'password_resets'];
             <button type="submit" name="delete_selected" onclick="return confirm('Are you sure you want to delete selected records?')">Delete Selected</button>
             <input type="hidden" name="table" value="password_resets">
         </form>
+    </div>
+
+    <!-- SQL Query Execution Section (Moved to its respective tab) -->
+    <div class="tab-content">
+        <h3>Execute SQL Query</h3>
+        <form method="POST">
+            <textarea name="sql_query" rows="6" cols="100" placeholder="Enter SQL query here..."></textarea><br>
+            <button type="submit" name="custom_sql_query">Execute Query</button>
+        </form>
+
+        <?php if (!empty($output)): ?>
+            <div class="query-output">
+                <h4>Query Results:</h4>
+                <?php if (is_array($output)): ?>
+                    <table>
+                        <thead>
+                            <tr>
+                                <?php foreach (array_keys($output[0]) as $column): ?>
+                                    <th><?= htmlspecialchars($column) ?></th>
+                                <?php endforeach; ?>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($output as $row): ?>
+                                <tr>
+                                    <?php foreach ($row as $value): ?>
+                                        <td><?= htmlspecialchars($value) ?></td>
+                                    <?php endforeach; ?>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php else: ?>
+                    <p><?= htmlspecialchars($output) ?></p>
+                <?php endif; ?>
+            </div>
+        <?php endif; ?>
     </div>
 </body>
 </html>
