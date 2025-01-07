@@ -117,7 +117,7 @@ $loginTime = date('Y-m-d H:i:s');
             <a href="templates/view_courses.php" class="btn btn-primary">View Courses</a>
             <a href="templates/ask_questions.php" class="btn btn-secondary">Ask Questions</a>
             <a href="templates/view_announcements.php" class="btn btn-success">View Announcements</a>
-            <a href="templates/user_profile.php" class="btn btn-success">Manage Profile</a>
+            <a href="../../student-management/manage_student_profile.php" class="btn btn-success">Manage Profile</a>
             <a href="book_catalog.php" class="btn btn-success">Book Catalog</a>
         </div>
     </div>
