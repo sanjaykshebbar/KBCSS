@@ -27,18 +27,47 @@ Table - 2
 login_activity
 
 CREATE TABLE `login_activity` (
-  `Login_id` int NOT NULL AUTO_INCREMENT,
-  `id` int NOT NULL,
-  `email` varchar(255) NOT NULL,
-  `userType` varchar(50) NOT NULL,
-  `login_time` datetime DEFAULT CURRENT_TIMESTAMP,
-  `logout_time` datetime DEFAULT NULL,
-  `session_duration` int DEFAULT NULL,
-  `ip_address` varchar(50) DEFAULT NULL,
-  `user_agent` text,
-  `created_at` datetime DEFAULT CURRENT_TIMESTAMP,
+  `Login_id` INT NOT NULL AUTO_INCREMENT,
+  `id` INT NOT NULL,
+  `email` VARCHAR(255) NOT NULL,
+  `userType` VARCHAR(50) NOT NULL,
+  `login_time` DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `logout_time` DATETIME DEFAULT NULL,
+  `session_duration` INT DEFAULT NULL, -- Session duration in minutes
+  `ip_address` VARCHAR(50) DEFAULT NULL,
+  `user_agent` TEXT,
+  `created_at` DATETIME DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`Login_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=25 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+) ENGINE=InnoDB AUTO_INCREMENT=136 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+DELIMITER $$
+
+CREATE TRIGGER calculate_session_duration
+BEFORE UPDATE ON `login_activity`
+FOR EACH ROW
+BEGIN
+    IF NEW.logout_time IS NOT NULL THEN
+        SET NEW.session_duration = TIMESTAMPDIFF(MINUTE, OLD.login_time, NEW.logout_time);
+    END IF;
+END$$
+
+DELIMITER ;
+
+
+ALTER TABLE login_activity MODIFY COLUMN session_duration VARCHAR(8);
+ALTER TABLE login_activity MODIFY session_duration VARCHAR(50);
+
+
+
+
+
+
+
+
+
+
 
 
 Table - 3
@@ -76,4 +105,122 @@ END$$
 
 DELIMITER ;
 
+
+
+
+
+
+CREATE TABLE Faculty_admin_info (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    employeeID VARCHAR(50) DEFAULT NULL,
+    specialization VARCHAR(100) DEFAULT NULL,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+);
+
+
+
+DELIMITER $$
+
+CREATE TRIGGER after_user_insert
+AFTER INSERT ON users
+FOR EACH ROW
+BEGIN
+    IF NEW.userType IN ('Admin', 'Faculty') THEN
+        INSERT INTO Faculty_admin_info (user_id) VALUES (NEW.id);
+    END IF;
+END $$
+
+DELIMITER ;
+
+
+
+DELIMITER $$
+
+CREATE TRIGGER after_user_update
+AFTER UPDATE ON users
+FOR EACH ROW
+BEGIN
+    IF OLD.userType NOT IN ('Admin', 'Faculty') AND NEW.userType IN ('Admin', 'Faculty') THEN
+        -- Insert new record if userType becomes 'Admin' or 'Faculty'
+        INSERT INTO Faculty_admin_info (user_id) VALUES (NEW.id);
+    ELSEIF OLD.userType IN ('Admin', 'Faculty') AND NEW.userType NOT IN ('Admin', 'Faculty') THEN
+        -- Delete record if userType is no longer 'Admin' or 'Faculty'
+        DELETE FROM Faculty_admin_info WHERE user_id = OLD.id;
+    END IF;
+END $$
+
+DELIMITER ;
+
+
+
+
+CREATE TABLE `q&a` (
+  `SLNO` int NOT NULL AUTO_INCREMENT,
+  `ID` int NOT NULL,
+  `Q-Asked-by` varchar(255) NOT NULL,
+  `Question` varchar(150) NOT NULL,
+  `A-Answered-by` varchar(255) DEFAULT NULL,
+  `Answer` text,
+  `logged-Time` datetime NOT NULL,
+  `SLNO-q-Student` int DEFAULT NULL,
+  PRIMARY KEY (`SLNO`),
+  KEY `ID` (`ID`),
+  CONSTRAINT `q&a_ibfk_1` FOREIGN KEY (`ID`) REFERENCES `users` (`id`) ON DELETE CASCADE
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+
+
+
+-- Recreate the Tickets table
+CREATE TABLE Tickets (
+    SLNO INT AUTO_INCREMENT PRIMARY KEY,
+    Ticket_Number VARCHAR(9) NOT NULL UNIQUE,
+    Requestor VARCHAR(255) NOT NULL,
+    Ticket_Subject VARCHAR(255) NOT NULL, -- Added Ticket Subject
+    Ticket_Description TEXT NOT NULL,     -- Added Ticket Description
+    Ticket_logged_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    Status ENUM('Open', 'Pending-for-action', 'Pending-for-Approval', 'Closed') NOT NULL,
+    Assigned VARCHAR(255) NOT NULL DEFAULT 'un-assigned', -- Default value set to 'un-assigned'
+    Closed_Time INT DEFAULT 0,
+    Total_Time INT DEFAULT 0,
+    CHECK (Status IN ('Open', 'Pending-for-action', 'Pending-for-Approval', 'Closed'))
+);
+
+-- Create a table to store comments for each ticket
+CREATE TABLE Ticket_Comments (
+    Comment_ID INT AUTO_INCREMENT PRIMARY KEY,
+    Ticket_SLNO INT NOT NULL, -- Foreign key referencing Tickets table
+    Comment_Text TEXT NOT NULL, -- The actual comment text
+    Comment_Time TIMESTAMP DEFAULT CURRENT_TIMESTAMP, -- Timestamp for when the comment was added
+    Commented_By VARCHAR(255) NOT NULL, -- Email or identifier of the person adding the comment
+    FOREIGN KEY (Ticket_SLNO) REFERENCES Tickets(SLNO) ON DELETE CASCADE
+);
+
+-- Trigger to update the Total_Time field when the ticket's status changes
+DELIMITER $$
+CREATE TRIGGER before_ticket_status_update
+BEFORE UPDATE ON Tickets
+FOR EACH ROW
+BEGIN
+    IF NEW.Status != 'Open' AND OLD.Status = 'Open' THEN
+        SET NEW.Total_Time = TIMESTAMPDIFF(SECOND, OLD.Ticket_logged_time, NOW());
+    END IF;
+END $$
+DELIMITER ;
+
+CREATE TABLE `people_action` (
+  `id` INT NOT NULL AUTO_INCREMENT,                             -- Primary key
+  `actioned_by` VARCHAR(255) NOT NULL,                          -- Email of the admin (acting user)
+  `altered_for` VARCHAR(255) NOT NULL,                          -- Email of the affected user (student or faculty)
+  `actionType` VARCHAR(255) NOT NULL,                           -- Type of action (e.g., password change)
+  `notes` TEXT,                                                -- Notes or reason for the action
+  `action_time` TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,       -- Timestamp of when the action took place
+  PRIMARY KEY (`id`),                                          -- Primary key
+  KEY `actioned_by` (`actioned_by`),                           -- Index for actioned_by (for faster lookups)
+  KEY `altered_for` (`altered_for`),                           -- Index for altered_for (for faster lookups)
+  CONSTRAINT `people_action_ibfk_1` FOREIGN KEY (`actioned_by`) 
+      REFERENCES `users` (`email`) ON DELETE CASCADE,          -- Foreign key to users table for actioned_by (admin)
+  CONSTRAINT `people_action_ibfk_2` FOREIGN KEY (`altered_for`) 
+      REFERENCES `users` (`email`) ON DELETE CASCADE           -- Foreign key to users table for altered_for (affected user)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 

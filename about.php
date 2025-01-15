@@ -79,6 +79,45 @@
             font-size: 1.1rem;
         }
 
+        .button-container {
+            text-align: center; /* Center-align the button */
+            margin-top: 20px;
+        }
+
+        .button {
+            display: inline-block;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            background-color: #4caf50;
+            text-decoration: none;
+            border-radius: 5px;
+            overflow: hidden;
+            position: relative;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        .button:hover {
+            background-color: #81c784;
+        }
+
+        /* Trailing effect */
+        .button::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: left 0.4s ease;
+        }
+
+        .button:hover::after {
+            left: 100%;
+        }
+
         footer {
             text-align: center;
             margin-top: 20px;
@@ -106,6 +145,7 @@
         <figure>
             <table>
                 <thead>
+                    <figcaption>Project Author Info</figcaption>
                     <tr>
                         <th>Field</th>
                         <th>Details</th>
@@ -126,8 +166,12 @@
                     </tr>
                 </tbody>
             </table>
-            <figcaption>Project Author Info</figcaption>
         </figure>
+
+        <!-- Button aligned to the center -->
+        <div class="button-container">
+            <a href="index.html" class="button">Go to Home Page</a>
+        </div>
     </main>
 
     <footer>

@@ -1,26 +1,23 @@
 <?php
-
 // Start session
-session_start();
+include 'session_manager.php';
+checkFacultySession(); // Ensure user is logged in as Faculty
 
-
-
-// Check if the user is logged in, is an Admin, and is active
-if (!isset($_SESSION['email']) || $_SESSION['userType'] !== 'Admin') {
-    echo "<script>alert('Unauthorized access. Please log in as an Administrator.'); 
-    window.location.href = 'login.php';</script>";
+// Redirect to login page if session is not active
+if (!isset($_SESSION['email'])) {
+    header("Location: login.php");
     exit();
 }
 
 // Include the database connection
-include './php/db_connection.php';
+include '../Administraton/php/db_connection.php';
 
 // Store login time in a variable
 $loginTime = date('Y-m-d H:i:s');
 
-// Set the admin email and construct the profile image path
-$adminEmail = $_SESSION['email'];
-$profileImagePath = "./Profile-Pic/Admin/" . strtolower($adminEmail) . "/" . strtolower($adminEmail) . ".jpg";
+// Set the faculty email and construct the profile image path
+$facultyEmail = $_SESSION['email'];
+$profileImagePath = "./Profile-Pic/Faculty/" . strtolower($facultyEmail) . "/" . strtolower($facultyEmail) . ".jpg";
 
 // Default profile image path
 $defaultProfileImage = "./Assets/Images/placeholder.png";
@@ -38,10 +35,19 @@ if (file_exists($profileImagePath)) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Dashboard</title>
-    <link rel="stylesheet" href="css/style.css?v=1.0"> <!-- Custom styles -->
+    <title>Faculty Dashboard</title>
+    <link rel="stylesheet" href="css/style.css"> <!-- Custom styles -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"> <!-- Bootstrap -->
+    <script>
+        // Display a popup if the session expired
+        window.onload = function() {
+            <?php if ($sessionExpired): ?>
+                alert("Your session has expired. Please log in again.");
+            <?php endif; ?>
+        };
+    </script>
     <style>
+        /* Same styles as the Admin version */
         * {
             margin: 0;
             padding: 0;
@@ -221,7 +227,7 @@ if (file_exists($profileImagePath)) {
     <div class="header">
         <!-- Welcome message with profile picture -->
         <div class="welcome-message">
-            <img src="<?php echo $profileImage; ?>" alt="Admin Profile Picture"> 
+            <img src="<?php echo $profileImage; ?>" alt="Faculty Profile Picture"> 
             <div>
                 <h3>Welcome, <?php echo $_SESSION['email']; ?>!</h3>
                 <p>Login Time: <?php echo $loginTime; ?></p>
@@ -242,20 +248,15 @@ if (file_exists($profileImagePath)) {
     <div class="main-content">
         <!-- Left Container for Buttons -->
         <div class="left-container">
-            <button class="button" onclick="loadPage('templates/manage_users.php')">Manage Users</button>
-            <button class="button" onclick="loadPage('templates/manage_roles.php')">Manage Roles</button>
-            <button class="button" onclick="loadPage('templates/add_users.php')">Add Users</button>
-            <button class="button" onclick="loadPage('templates/remove_users.php')">Remove Users</button>
-            <button class="button" onclick="loadPage('manage_admin_profile.php')">Manage Profile</button>
+            <button class="button" onclick="loadPage('templates/manage_users.php')">Manage Students</button>
+            <button class="button" onclick="loadPage('manage_faculty_profile.php')">Manage Profile</button>
             <button class="button" onclick="loadPage('login_logout_activity.php')">User Login Activity</button>
-            <button class="button" onclick="loadPage('password-assist.php')">Password Assist</button>
-            <button class="button" onclick="loadPage('./Tickets.php')">Ticketing</button>
         </div>
 
         <!-- Right Container for Default Message and Iframe Content -->
         <div class="right-container">
             <div id="default-message" class="default-message">
-                <p>Welcome to the Admin Dashboard! Choose an option from the menu to manage users, roles, and more.</p>
+                <p>Welcome to the Faculty Dashboard! Choose an option from the menu to manage users, roles, and more.</p>
             </div>
             <iframe id="contentFrame" src=""></iframe>
         </div>
@@ -263,12 +264,11 @@ if (file_exists($profileImagePath)) {
 
     <!-- Footer -->
     <div class="footer">
-        <p>&copy; 2025 Admin Dashboard | All rights reserved.</p>
+        <p>&copy; 2025 Faculty Dashboard | All rights reserved.</p>
     </div>
 
     <!-- JavaScript for Clock, Page Loading and Default Message -->
     <script>
-        // Clock update functionality
         function updateClock() {
             const now = new Date();
             const hours = String(now.getHours()).padStart(2, '0');
@@ -277,28 +277,15 @@ if (file_exists($profileImagePath)) {
             document.getElementById('clock').textContent = `${hours}:${minutes}:${seconds}`;
         }
 
-        // Load page into iframe
         function loadPage(url) {
             document.getElementById("default-message").style.display = 'none';  // Hide default message
             document.getElementById("contentFrame").style.display = 'block';     // Show iframe
             document.getElementById("contentFrame").src = url;
         }
 
-        // Add event listener for iframe loading
-        const contentFrame = document.getElementById("contentFrame");
-        contentFrame.addEventListener("load", function () {
-            console.log("Page loaded successfully.");
-        });
-
-        // Set interval for clock and initial update
         setInterval(updateClock, 1000);
         updateClock(); // Initial call to display the time immediately
-
-        // Session timeout after 10 minutes
-        setTimeout(function () {
-            alert('Session timed out. Please log in again.');
-            window.location.href = 'logout.php';
-        }, 10 * 60 * 1000); // 10 minutes in milliseconds
     </script>
+
 </body>
 </html>

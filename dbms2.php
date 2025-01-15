@@ -12,20 +12,7 @@ try {
     die("Connection failed: " . $e->getMessage());
 }
 
-// Execute custom SQL query
-$output = '';
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['custom_sql_query'])) {
-    $query = $_POST['sql_query'] ?? '';
-    if (!empty($query)) {
-        try {
-            $stmt = $conn->prepare($query);
-            $stmt->execute();
-            $output = $stmt->fetchAll(PDO::FETCH_ASSOC);
-        } catch (PDOException $e) {
-            $output = "Error: " . $e->getMessage();
-        }
-    }
-}
+
 ?>
 <html>
 <head>

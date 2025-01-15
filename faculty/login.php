@@ -7,7 +7,18 @@ header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
 
 session_start();
-include './php/db_connection.php';
+
+
+// If a session is active, destroy it and redirect to login
+if (isset($_SESSION['email'])) {
+    session_unset(); // Unset all session variables
+    session_destroy(); // Destroy the session
+    header("Location: login.php");
+    exit();
+}
+
+
+include '../Administraton/php/db_connection.php';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $email = isset($_POST['email']) ? trim($_POST['email']) : '';
@@ -35,7 +46,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = $pdo->prepare("INSERT INTO login_activity (id, email, userType, login_time, ip_address, user_agent) VALUES (?, ?, ?, ?, ?, ?)");
                     $stmt->execute([$_SESSION['id'], $_SESSION['email'], $_SESSION['userType'], $login_time, $ip_address, $user_agent]);
 
-                    header('Location: index.php');
+                    header('Location: f-homepage.php');
                     exit();
                 } else {
                     echo "<script>alert('Invalid credentials! Please try again.');</script>";
@@ -54,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin Login</title>
+    <title>Faculty Login</title>
     <style>
         :root {
             --primary-color: #007bff;
@@ -82,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             text-align: center;
         }
 
-        /* Admin Icon Section */
+        /* Faculty Icon Section */
         .admin-icon {
             font-size: 3rem;
             color: var(--primary-color);
@@ -210,11 +221,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body>
     
     <div class="login-container">
-        <!-- Admin Icon Placeholder -->
+        <!-- Faculty Icon Placeholder -->
         <div class="admin-icon">
-        <img src="./Assets/Images/admin.png" alt="Admin Icon" class="admin-icon">
+        <img src="./Assets/Images/admin.png" alt="Faculty Icon" class="admin-icon">
         </div>
-        <h2>Admin Login</h2>
+        <h2>Faculty Login</h2>
 
         
 

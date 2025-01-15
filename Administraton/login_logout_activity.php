@@ -54,23 +54,38 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login'])) {
     }
 }
 
-// Handle Logout
 if (isset($_GET['logout'])) {
-    // Get logout time and calculate session duration
-    $logout_time = date("Y-m-d H:i:s");
-    $session_duration = time() - $_SESSION['login_time']; // Calculate the session duration in seconds
-
-    // Update the logout time and session duration in the login_activity table
-    $stmt = $pdo->prepare("UPDATE login_activity SET logout_time = ?, session_duration = ? WHERE id = ? AND logout_time IS NULL");
-    $stmt->execute([$logout_time, $session_duration, $_SESSION['id']]);
-
+    if (isset($_SESSION['id'])) {
+      try {
+        // Get logout time
+        $logout_time = date("Y-m-d H:i:s");
+  
+        // Update the logout time in the login_activity table
+        $stmt = $pdo->prepare("UPDATE login_activity SET logout_time = ? WHERE id = ? AND logout_time IS NULL");
+        $result = $stmt->execute([$logout_time, $_SESSION['id']]);
+  
+        if ($result) {
+          echo "<script>alert('Logout time successfully recorded.');</script>";
+        } else {
+          echo "<script>alert('Failed to record logout time. Please check logs for details.');</script>";
+          // You can also log the error message here for further investigation
+        }
+  
+      } catch (PDOException $e) {
+        echo "<script>alert('Error updating logout time: " . addslashes($e->getMessage()) . "');</script>";
+      }
+    } else {
+      echo "<script>alert('Session ID not found.');</script>";
+    }
+  
     // Destroy the session
     session_destroy();
-
-    // Redirect to the login page
-    header('Location: login.php');
+    header("Location: login.php");
     exit();
-}
+  }
+
+
+
 
 // Fetch All Login Activity for Display
 $stmt = $pdo->query("SELECT * FROM login_activity ORDER BY login_time DESC");
@@ -216,14 +231,7 @@ $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <?php } else { ?>
     <!-- Admin Dashboard -->
     <div class="container mt-5">
-        <h1 class="text-center mb-4">Welcome, <?php echo $_SESSION['email']; ?>!</h1>
-        <p class="text-center">You are logged in as an <?php echo $_SESSION['userType']; ?>.</p>
-
-        <!-- Logout Button -->
-        <div class="d-flex justify-content-center gap-3 mt-4">
-            <a href="index.php" class="btn btn-primary">Go-Back</a>
-            <a href="login_logout_activity.php?logout=true" class="btn btn-danger">Logout</a>
-        </div>
+        <h1 class="text-center">You are logged in as an <?php echo $_SESSION['userType']; ?>.</h1>
 
         <!-- Filter Toggle and Options -->
         <div class="filter-toggle-container">
@@ -258,7 +266,7 @@ $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <th>User Type</th>
                     <th>Login Time</th>
                     <th>Logout Time</th>
-                    <th>Session Duration (seconds)</th>
+                    <th>Session Duration (Minutes)</th>
                     <th>IP Address</th>
                     <th>User Agent</th>
                 </tr>
@@ -355,7 +363,7 @@ $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     // Export table data to CSV
     document.getElementById('exportCSV').addEventListener('click', function () {
-        let csvContent = "Login ID,User ID,Email,User Type,Login Time,Logout Time,Session Duration (seconds),IP Address,User Agent\n";
+        let csvContent = "Login ID,User ID,Email,User Type,Login Time,Logout Time,Session Duration (Minutes),IP Address,User Agent\n";
 
         tableRows.forEach(row => {
             const cells = row.querySelectorAll('td');
@@ -370,7 +378,7 @@ $activities = $stmt->fetchAll(PDO::FETCH_ASSOC);
         link.download = 'login_activity.csv';
         link.click();
     });
-</script>
+</script>   
 
 </body>
 </html>

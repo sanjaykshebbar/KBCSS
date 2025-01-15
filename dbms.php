@@ -14,7 +14,8 @@ try {
 
 // Fetch table data for users, login_activity, and password_resets
 function fetchTableData($conn, $table) {
-    $stmt = $conn->prepare("SELECT * FROM $table");
+    // Wrap the table name in backticks to handle special characters like '&'
+    $stmt = $conn->prepare("SELECT * FROM `$table`");
     $stmt->execute();
     return $stmt->fetchAll(PDO::FETCH_ASSOC);
 }
@@ -36,7 +37,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $columnsString = implode(", ", array_keys($columns));
             $placeholders = ":" . implode(", :", array_keys($columns));
 
-            $sql = "INSERT INTO $table ($columnsString) VALUES ($placeholders)";
+            $sql = "INSERT INTO `$table` ($columnsString) VALUES ($placeholders)";
             $stmt = $conn->prepare($sql);
 
             foreach ($columns as $key => $value) {
@@ -54,7 +55,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         if (!empty($selectedIds)) {
             $idsString = implode(",", $selectedIds);
-            $sql = "DELETE FROM $table WHERE id IN ($idsString)";
+            $sql = "DELETE FROM `$table` WHERE id IN ($idsString)";
             $stmt = $conn->prepare($sql);
             $stmt->execute();
             echo "<script>alert('Selected records deleted successfully!'); window.location.href = window.location.href;</script>";
@@ -63,7 +64,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Execute custom SQL query
     $output = '';
-    if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['custom_sql_query'])) {
+    if (isset($_POST['custom_sql_query'])) {
         $query = $_POST['sql_query'] ?? '';
         if (!empty($query)) {
             try {
@@ -78,7 +79,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 }
 
 // Table list for displaying records
-$tableNames = ['users', 'login_activity', 'password_resets'];
+$tableNames = ['users', 'login_activity', 'password_resets', 'q&a'];
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -140,10 +141,15 @@ $tableNames = ['users', 'login_activity', 'password_resets'];
             const tabs = document.querySelectorAll('.tab');
             const contents = document.querySelectorAll('.tab-content');
 
+            // Remove the 'active' class from all tabs and content sections
             tabs.forEach((tab, index) => {
-                tab.classList.toggle('active', index === tabIndex);
-                contents[index].classList.toggle('active', index === tabIndex);
+                tab.classList.remove('active');
+                contents[index].classList.remove('active');
             });
+
+            // Add the 'active' class to the selected tab and content section
+            tabs[tabIndex].classList.add('active');
+            contents[tabIndex].classList.add('active');
         }
 
         // Select all checkbox functionality
@@ -174,6 +180,7 @@ $tableNames = ['users', 'login_activity', 'password_resets'];
         <div class="tab" onclick="switchTab(2)">Login Activity Table (View & Delete)</div>
         <div class="tab" onclick="switchTab(3)">Password Resets Table (View & Delete)</div>
         <div class="tab" onclick="switchTab(4)">Execute SQL Query</div>
+        <div class="tab" onclick="switchTab(5)">Q&A Table (View & Delete)</div>
     </div>
 
     <!-- Data Entry Sheet (for Users Table) -->
@@ -220,7 +227,7 @@ $tableNames = ['users', 'login_activity', 'password_resets'];
                 <tbody>
                     <?php foreach ($data as $row): ?>
                         <tr>
-                            <td><input type="checkbox" class="record-checkbox" name="selected_ids[]" value="<?= $row['id'] ?>"></td>
+                            <td><input type="checkbox" class="record-checkbox" name="selected_ids[]" value="<?= htmlspecialchars($row['id']) ?>"></td>
                             <?php foreach ($row as $value): ?>
                                 <td><?= htmlspecialchars($value) ?></td>
                             <?php endforeach; ?>
@@ -239,7 +246,7 @@ $tableNames = ['users', 'login_activity', 'password_resets'];
         <?php $data = fetchTableData($conn, 'login_activity'); ?>
         <form method="POST">
             <div class="select-all">
-                <input type="checkbox" id="select-all-login" onclick="toggleSelectAll(this)"> Select All
+                <input type="checkbox" id="select-all" onclick="toggleSelectAll(this)"> Select All
             </div>
             <table>
                 <thead>
@@ -257,7 +264,7 @@ $tableNames = ['users', 'login_activity', 'password_resets'];
                 <tbody>
                     <?php foreach ($data as $row): ?>
                         <tr>
-                            <td><input type="checkbox" class="record-checkbox" name="selected_ids[]" value="<?= $row['id'] ?>"></td>
+                            <td><input type="checkbox" class="record-checkbox" name="selected_ids[]" value="<?= htmlspecialchars($row['id']) ?>"></td>
                             <?php foreach ($row as $value): ?>
                                 <td><?= htmlspecialchars($value) ?></td>
                             <?php endforeach; ?>
@@ -276,7 +283,7 @@ $tableNames = ['users', 'login_activity', 'password_resets'];
         <?php $data = fetchTableData($conn, 'password_resets'); ?>
         <form method="POST">
             <div class="select-all">
-                <input type="checkbox" id="select-all-password" onclick="toggleSelectAll(this)"> Select All
+                <input type="checkbox" id="select-all" onclick="toggleSelectAll(this)"> Select All
             </div>
             <table>
                 <thead>
@@ -294,7 +301,7 @@ $tableNames = ['users', 'login_activity', 'password_resets'];
                 <tbody>
                     <?php foreach ($data as $row): ?>
                         <tr>
-                            <td><input type="checkbox" class="record-checkbox" name="selected_ids[]" value="<?= $row['id'] ?>"></td>
+                            <td><input type="checkbox" class="record-checkbox" name="selected_ids[]" value="<?= htmlspecialchars($row['id']) ?>"></td>
                             <?php foreach ($row as $value): ?>
                                 <td><?= htmlspecialchars($value) ?></td>
                             <?php endforeach; ?>
@@ -307,41 +314,54 @@ $tableNames = ['users', 'login_activity', 'password_resets'];
         </form>
     </div>
 
-    <!-- SQL Query Execution Section (Moved to its respective tab) -->
+    <!-- Execute SQL Query -->
     <div class="tab-content">
         <h3>Execute SQL Query</h3>
         <form method="POST">
-            <textarea name="sql_query" rows="6" cols="100" placeholder="Enter SQL query here..."></textarea><br>
+            <textarea name="sql_query" rows="5" cols="60"></textarea><br>
             <button type="submit" name="custom_sql_query">Execute Query</button>
         </form>
+        <h4>Output:</h4>
+        <pre>
+            <?php
+            if (!empty($output)) {
+                print_r($output);
+            }
+            ?>
+        </pre>
+    </div>
 
-        <?php if (!empty($output)): ?>
-            <div class="query-output">
-                <h4>Query Results:</h4>
-                <?php if (is_array($output)): ?>
-                    <table>
-                        <thead>
-                            <tr>
-                                <?php foreach (array_keys($output[0]) as $column): ?>
-                                    <th><?= htmlspecialchars($column) ?></th>
-                                <?php endforeach; ?>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($output as $row): ?>
-                                <tr>
-                                    <?php foreach ($row as $value): ?>
-                                        <td><?= htmlspecialchars($value) ?></td>
-                                    <?php endforeach; ?>
-                                </tr>
+    <!-- Q&A Table (View & Delete) -->
+    <div class="tab-content">
+        <h3>Q&A Table (View & Delete)</h3>
+        <?php $data = fetchTableData($conn, 'q&a'); ?>
+        <form method="POST">
+            <table>
+                <thead>
+                    <tr>
+                        <?php if (!empty($data)): ?>
+                            <?php foreach (array_keys($data[0]) as $column): ?>
+                                <th><?= $column ?></th>
                             <?php endforeach; ?>
-                        </tbody>
-                    </table>
-                <?php else: ?>
-                    <p><?= htmlspecialchars($output) ?></p>
-                <?php endif; ?>
-            </div>
-        <?php endif; ?>
+                        <?php else: ?>
+                            <th>No records found</th>
+                        <?php endif; ?>
+                    </tr>
+                </thead>
+                <tbody>
+                    <?php foreach ($data as $row): ?>
+                        <tr>
+
+                            <?php foreach ($row as $value): ?>
+                                <td><?= htmlspecialchars($value) ?></td>
+                            <?php endforeach; ?>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+            <button type="submit" name="delete_selected" onclick="return confirm('Are you sure you want to delete selected records?')">Delete Selected</button>
+            <input type="hidden" name="table" value="q&a">
+        </form>
     </div>
 </body>
 </html>

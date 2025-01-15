@@ -119,9 +119,11 @@ $loginTime = date('Y-m-d H:i:s');
             <a href="templates/view_announcements.php" class="btn btn-success">View Announcements</a>
             <a href="../../student-management/manage_student_profile.php" class="btn btn-success">Manage Profile</a>
             <a href="book_catalog.php" class="btn btn-success">Book Catalog</a>
+            <a href="../../student-management/student-question.php" class="btn btn-success">Raise Query</a> 
+            <a href="../../student-management/Tickets.php" class="btn btn-success">Raise Ticket</a>
+            <a href="../../student-management/Tickets-status.php" class="btn btn-success">Ticket Status</a>
         </div>
     </div>
-
     <!-- JavaScript for Clock -->
     <script>
         function updateClock() {

@@ -136,6 +136,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['user_id'], $_POST['use
             color: #007bff;
         }
 
+        .filter-section {
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+        }
+
+        .filter-section select {
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -183,16 +197,27 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['user_id'], $_POST['use
             color: #333;
         }
     </style>
+    <script>
+        function filterTable() {
+            const roleFilter = document.getElementById("roleFilter").value.toLowerCase();
+            const statusFilter = document.getElementById("statusFilter").value.toLowerCase();
+            const rows = document.querySelectorAll("tbody tr");
+
+            rows.forEach(row => {
+                const role = row.cells[2].innerText.toLowerCase();
+                const status = row.cells[3].innerText.toLowerCase();
+                row.style.display =
+                    (roleFilter === "all" || role === roleFilter) &&
+                    (statusFilter === "all" || status === statusFilter)
+                        ? ""
+                        : "none";
+            });
+        }
+    </script>
 </head>
 <body>
     <div class="container">
         <h1>Manage User Roles</h1>
-
-        <!-- Action Buttons -->
-        <div class="action-buttons">
-            <a href="../index.php" class="btn btn-primary">Go-Back</a>
-            <a href="../logout.php?logout=true" class="btn btn-danger">Logout</a>
-        </div>
 
         <!-- Summary Section -->
         <div class="summary">
@@ -218,6 +243,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['user_id'], $_POST['use
             </div>
         </div>
 
+        <!-- Filter Section -->
+        <div class="filter-section">
+            <select id="roleFilter" onchange="filterTable()">
+                <option value="all">All Roles</option>
+                <option value="admin">Admin</option>
+                <option value="faculty">Faculty</option>
+                <option value="student">Student</option>
+                <option value="yet-to-confirm">Yet to Confirm</option>
+            </select>
+            <select id="statusFilter" onchange="filterTable()">
+                <option value="all">All Status</option>
+                <option value="active">Active</option>
+                <option value="disabled">Disabled</option>
+                <option value="inactive">Inactive</option>
+            </select>
+        </div>
+
         <!-- Table to display users and their roles -->
         <table>
             <thead>
@@ -237,7 +279,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['user_id'], $_POST['use
                         <td><?php echo htmlspecialchars($user['userType']); ?></td>
                         <td><?php echo htmlspecialchars($user['userState']); ?></td>
                         <td>
-                            <!-- Form to update user role -->
                             <form method="POST" style="display:inline;">
                                 <input type="hidden" name="user_id" value="<?php echo $user['id']; ?>">
                                 <select name="user_type" class="form-select" required>
@@ -256,3 +297,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST' && isset($_POST['user_id'], $_POST['use
     </div>
 </body>
 </html>
+                    

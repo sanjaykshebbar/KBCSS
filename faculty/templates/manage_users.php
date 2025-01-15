@@ -1,14 +1,14 @@
 <?php
 session_start();
 
-// Check if the user is logged in, is an Admin, and is active
-if (!isset($_SESSION['email']) || $_SESSION['userType'] !== 'Admin') {
-    echo "<script>alert('Unauthorized access. Please log in as an Administrator.'); 
+// Check if the user is logged in, is an Faculty, and is active
+if (!isset($_SESSION['email']) || $_SESSION['userType'] !== 'Faculty') {
+    echo "<script>alert('Unauthorized access. Please log in as an Facultyistrator.'); 
     window.location.href = '../login.php';</script>";
     exit();
 }
 
-require '../php/db_connection.php'; // Include database connection
+require '../../Administraton/php/db_connection.php'; // Include database connection
 
 // Fetch summary counts with COALESCE to ensure all roles are represented
 $summaryQuery = "
@@ -39,16 +39,19 @@ foreach ($roleSummary as $role) {
 
 // Ensure all roles have default values for missing keys
 $roles = array_merge(
-    ['yet-to-confirm' => 0, 'Admin' => 0, 'Student' => 0, 'Faculty' => 0],
+    ['yet-to-confirm' => 0, 'Faculty' => 0, 'Student' => 0, 'Faculty' => 0],
     $roles
 );
 
 
-// Fetch all users for the table
-$query = "SELECT id, firstname, lastname, username, email, phone, userType, userState FROM users";
+// Fetch only "Student" users for the table
+$query = "SELECT id, firstname, lastname, username, email, phone, userType, userState 
+          FROM users 
+          WHERE userType = 'Student'";
 $stmt = $pdo->prepare($query);
 $stmt->execute();
 $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -230,8 +233,8 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                     <p><?= $roles['yet-to-confirm']; ?></p>
                 </div>
                 <div class="summary-card">
-                    <h3>Admins</h3>
-                    <p><?= $roles['Admin']; ?></p>
+                    <h3>Facultys</h3>
+                    <p><?= $roles['Faculty']; ?></p>
                 </div>
                 <div class="summary-card">
                     <h3>Students</h3>
