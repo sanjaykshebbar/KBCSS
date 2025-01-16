@@ -11,8 +11,8 @@ $filterEmail = $filterEnabled ? $_POST['filter_email'] ?? '' : '';
 $filterIP = $filterEnabled ? $_POST['filter_ip'] ?? '' : '';
 
 try {
-    // Fetch login activity with or without filters
-    $query = "SELECT * FROM login_activity";
+    // Fetch login activity with or without filters, only for students
+    $query = "SELECT * FROM login_activity WHERE userType = 'Student'";
     $conditions = [];
 
     if ($filterEnabled) {
@@ -25,7 +25,7 @@ try {
     }
 
     if ($conditions) {
-        $query .= " WHERE " . implode(" AND ", $conditions);
+        $query .= " AND " . implode(" AND ", $conditions);
     }
 
     $query .= " ORDER BY login_time DESC";
@@ -47,6 +47,7 @@ try {
     die("Error fetching login activity: " . $e->getMessage());
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">

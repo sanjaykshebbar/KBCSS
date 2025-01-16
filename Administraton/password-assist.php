@@ -27,28 +27,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updatePassword'])) {
         echo "<script>alert('Please fill all fields!');</script>";
     } elseif ($newPassword !== $confirmPassword) {
         echo "<script>alert('Passwords do not match!');</script>";
+    } elseif (strlen($newPassword) < 6) {
+        echo "<script>alert('Password must be at least 6 characters long!');</script>";
     } else {
         try {
             // MD5 hash the new password
             $hashedPassword = md5($newPassword);
-
+    
             // Update the password for the selected user
             $stmt = $pdo->prepare("UPDATE users SET password = ? WHERE id = ?");
             $stmt->execute([$hashedPassword, $userId]);
-
+    
             // Log the action in the people_action table
             $actionType = 'Password_Change';
             $actionTime = date('Y-m-d H:i:s');
-
-            $logStmt = $pdo->prepare("INSERT INTO people_action (actioned_by, altered_for, actionType, notes, action_time) 
+    
+            $logStmt = $pdo->prepare("INSERT INTO people_action (actioned_by, altered_to, actionType, notes, action_time) 
                                       VALUES (?, ?, ?, ?, ?)");
             $logStmt->execute([$adminEmail, $userEmail, $actionType, $reason, $actionTime]);
-
+    
             echo "<script>alert('Password updated and action logged successfully!');</script>";
         } catch (PDOException $e) {
             echo "<script>alert('Error: " . addslashes($e->getMessage()) . "');</script>";
         }
     }
+    
 }
 
 // Handle user filtering
@@ -121,13 +124,15 @@ $users = $stmt->fetchAll(PDO::FETCH_ASSOC);
                 <input type="hidden" name="userEmail" id="userEmail">
             </div>
             <div class="mb-3">
-                <label for="newPassword" class="form-label">New Password</label>
-                <input type="password" name="newPassword" id="newPassword" class="form-control" required>
-            </div>
-            <div class="mb-3">
-                <label for="confirmPassword" class="form-label">Confirm Password</label>
-                <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" required>
-            </div>
+    <label for="newPassword" class="form-label">New Password</label>
+    <input type="password" name="newPassword" id="newPassword" class="form-control" minlength="6" required>
+    <small class="form-text text-muted">Password must be at least 6 characters long.</small>
+</div>
+<div class="mb-3">
+    <label for="confirmPassword" class="form-label">Confirm Password</label>
+    <input type="password" name="confirmPassword" id="confirmPassword" class="form-control" minlength="6" required>
+</div>
+
             <div class="mb-3">
                 <label for="reason" class="form-label">Reason for Password Change</label>
                 <textarea name="reason" id="reason" class="form-control" required></textarea>

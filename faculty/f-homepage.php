@@ -250,6 +250,7 @@ if (file_exists($profileImagePath)) {
         <div class="left-container">
             <button class="button" onclick="loadPage('templates/manage_users.php')">Manage Students</button>
             <button class="button" onclick="loadPage('manage_faculty_profile.php')">Manage Profile</button>
+            <button class="button" onclick="loadPage('question-answers.php')">Q&A</button>
             <button class="button" onclick="loadPage('login_logout_activity.php')">User Login Activity</button>
         </div>
 
