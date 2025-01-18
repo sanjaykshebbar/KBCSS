@@ -14,16 +14,16 @@ if (!isset($_SESSION['id']) || !isset($_SESSION['userType']) || $_SESSION['userT
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ask a Question</title>
-    <link rel="stylesheet" href="styles.css">
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #f9f9f9;
+            background-color: #f4f4f4;
             margin: 0;
             padding: 0;
             display: flex;
             flex-direction: column;
             align-items: center;
+            min-height: 100vh;
         }
 
         h1 {
@@ -34,10 +34,12 @@ if (!isset($_SESSION['id']) || !isset($_SESSION['userType']) || $_SESSION['userT
 
         .container {
             display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            gap: 20px;
             width: 90%;
             max-width: 1200px;
-            gap: 20px;
-            align-items: flex-start;
+            margin: 0 auto;
         }
 
         form {
@@ -46,9 +48,7 @@ if (!isset($_SESSION['id']) || !isset($_SESSION['userType']) || $_SESSION['userT
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             flex: 1;
-            height: 100%; /* Ensure the form stays at a fixed height */
         }
-
 
         #questions {
             background: #fff;
@@ -56,8 +56,8 @@ if (!isset($_SESSION['id']) || !isset($_SESSION['userType']) || $_SESSION['userT
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             flex: 2;
-            max-height: 600px; /* Set a max height for the right container */
-            overflow-y: auto; /* Enable vertical scrolling when content exceeds max height */
+            max-height: 600px;
+            overflow-y: auto;
         }
 
         label {
@@ -102,7 +102,7 @@ if (!isset($_SESSION['id']) || !isset($_SESSION['userType']) || $_SESSION['userT
         }
 
         .question {
-            color: #444; /* Softer shade */
+            color: #444;
             font-weight: bold;
             margin-bottom: 10px;
         }
@@ -115,7 +115,6 @@ if (!isset($_SESSION['id']) || !isset($_SESSION['userType']) || $_SESSION['userT
             top: 0;
             width: 100%;
             height: 100%;
-            overflow: auto;
             background-color: rgba(0, 0, 0, 0.5);
             padding-top: 50px;
         }
@@ -125,8 +124,8 @@ if (!isset($_SESSION['id']) || !isset($_SESSION['userType']) || $_SESSION['userT
             margin: auto;
             padding: 20px;
             border: 1px solid #888;
-            width: 90%; /* Wider popup */
-            height: 80%; /* Fixed height */
+            width: 70%;
+            max-width: 800px;
             border-radius: 8px;
             overflow-y: auto;
         }
@@ -148,15 +147,15 @@ if (!isset($_SESSION['id']) || !isset($_SESSION['userType']) || $_SESSION['userT
             font-weight: bold;
         }
 
-        .close {
+        .modal .close {
             color: #aaa;
             float: right;
             font-size: 28px;
             font-weight: bold;
         }
 
-        .close:hover,
-        .close:focus {
+        .modal .close:hover,
+        .modal .close:focus {
             color: black;
             text-decoration: none;
             cursor: pointer;
@@ -203,6 +202,31 @@ if (!isset($_SESSION['id']) || !isset($_SESSION['userType']) || $_SESSION['userT
             }
             return true;
         }
+
+        // Function to check for updates in the A-Answered-by field
+        function checkForUpdates() {
+            var lastUpdateTime = localStorage.getItem('lastUpdateTime'); // Store the last update timestamp
+
+            // Use AJAX to check for updates
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', 'check_updates.php?lastUpdateTime=' + lastUpdateTime, true);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    var response = JSON.parse(xhr.responseText);
+                    if (response.newDataAvailable) {
+                        // If new data is available (i.e., A-Answered-by is updated), refresh the page
+                        location.reload();
+                    } else {
+                        // If no update, save the current timestamp
+                        localStorage.setItem('lastUpdateTime', response.lastUpdateTime);
+                    }
+                }
+            };
+            xhr.send();
+        }
+
+        // Check for updates every 10 seconds (adjust this interval as needed)
+        setInterval(checkForUpdates, 10000);
     </script>
 </head>
 <body>
@@ -294,7 +318,7 @@ $conn->close();
                                     </tr>
                                     <tr>
                                         <th>Answered By</th>
-                                        <td><?= htmlspecialchars($qa['A-Answered-by']) ?: 'N/A' ?></td>
+                                        <td><?= $qa['A-Answered-by'] ? htmlspecialchars($qa['A-Answered-by']) : 'N/A' ?></td>
                                     </tr>
                                     <tr>
                                         <th>Answer</th>

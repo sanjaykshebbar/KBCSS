@@ -14,7 +14,7 @@ include('../Login_and_Register/Backend/connect.php');
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['slno'])) {
     $slno = $_POST['slno'];
     $answer = $_POST['answer'];
-    $faculty_email = $_SESSION['username']; // Assuming faculty email is stored in session
+    $faculty_email = $_SESSION['email']; // Assuming faculty email is stored in session
 
     $update_sql = "UPDATE `q&a` 
                    SET `Answer` = ?, `A-Answered-by` = ? 

@@ -104,6 +104,7 @@ BEGIN
 END$$
 
 DELIMITER ;
+ALTER TABLE student_degree MODIFY COLUMN semester VARCHAR(50);
 
 
 
@@ -224,3 +225,17 @@ CREATE TABLE `people_action` (
       REFERENCES `users` (`email`) ON DELETE CASCADE           -- Foreign key to users table for altered_for (affected user)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 
+
+
+CREATE TABLE available_degree (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    degreeType VARCHAR(255) NOT NULL
+);
+
+
+CREATE TABLE `semester_info` (
+  `sem_id` int NOT NULL AUTO_INCREMENT,
+  `semester` varchar(10) NOT NULL,
+  PRIMARY KEY (`sem_id`),
+  UNIQUE KEY `semester` (`semester`)
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
