@@ -156,7 +156,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         button:hover {
-            background-color: #0056b3;
+            background-color:rgb(37, 156, 63);
         }
 
         .modal {
@@ -172,37 +172,50 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
 
         .modal-content {
-            position: relative;
-            width: 40%;
+            display: center;
+            flex-direction: column;
+            align-items: center; /* Center the content */
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 5px 4px 6px rgba(0, 0, 0, 0.1);
+            width: 60%; /* Width of the modal */
             background-color: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        .modal-content form {
+            width: 100%; /* Ensure the form takes the full width */
         }
 
         label {
             font-size: 14px;
             color: #555;
+            margin-bottom: 5px;
+            width: 90%; /* Ensure label takes the full width */
         }
 
         input, select, textarea {
             width: 100%;
-            padding: 10px;
-            margin: 10px 0;
+            padding: 8px;
+            margin: 10px 0px;
             border: 1px solid #ccc;
             border-radius: 5px;
             font-size: 14px;
         }
 
-        .notes-section textarea {
-            height: 80px;
+        textarea {
+            height: 90px;
         }
 
         button[type="submit"] {
-            width: 100%;
+            width: 100%; /* Full width of the button */
             padding: 10px;
             font-size: 16px;
             font-weight: bold;
+            margin-top: 10px;
+        }
+
+        .notes-section textarea {
+            height: 80px; /* Set height of the textarea */
         }
 
         .close {

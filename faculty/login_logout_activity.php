@@ -47,8 +47,6 @@ try {
     die("Error fetching login activity: " . $e->getMessage());
 }
 ?>
-
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -95,11 +93,14 @@ try {
     <div class="container mt-5">
         <h2 class="text-center mb-4">Login Activity</h2>
 
-        <form method="POST" class="mb-4">
+        <form method="POST" class="mb-4" id="filterForm">
+            <!-- Enable Filter Toggle -->
             <div class="form-check form-switch">
                 <input class="form-check-input" type="checkbox" id="filterSwitch" name="filter_enabled" <?php echo $filterEnabled ? 'checked' : ''; ?>>
                 <label class="form-check-label" for="filterSwitch">Enable Filter</label>
             </div>
+
+            <!-- Filter Fields (Email & IP) -->
             <div class="row g-3 <?php echo $filterEnabled ? '' : 'd-none'; ?>" id="filterFields">
                 <div class="col-md-6">
                     <input type="text" class="form-control" name="filter_email" placeholder="Filter by Email" value="<?php echo htmlspecialchars($filterEmail); ?>">
@@ -108,12 +109,15 @@ try {
                     <input type="text" class="form-control" name="filter_ip" placeholder="Filter by IP Address" value="<?php echo htmlspecialchars($filterIP); ?>">
                 </div>
             </div>
-            <div class="mt-3">
+
+            <!-- Buttons (Only visible when filter is enabled) -->
+            <div class="mt-3 <?php echo $filterEnabled ? '' : 'd-none'; ?>" id="filterButtons">
                 <button type="submit" class="btn btn-primary">Apply Filter</button>
-                <button type="reset" class="btn btn-secondary" onclick="resetForm()">Reset</button>
+                <button type="button" class="btn btn-secondary" id="resetButton">Reset</button>
             </div>
         </form>
 
+        <!-- Table to display login activity -->
         <table class="table table-bordered" id="loginTable">
             <thead>
                 <tr>
@@ -147,21 +151,39 @@ try {
     </div>
 
     <script>
+        // Get the filter toggle and filter fields
         const filterSwitch = document.getElementById('filterSwitch');
         const filterFields = document.getElementById('filterFields');
+        const filterButtons = document.getElementById('filterButtons');
+        const filterEmail = document.getElementsByName('filter_email')[0];
+        const filterIP = document.getElementsByName('filter_ip')[0];
 
+        // Show or hide filter fields and buttons when the switch is toggled
         filterSwitch.addEventListener('change', () => {
             if (filterSwitch.checked) {
+                // Show filter fields and buttons
                 filterFields.classList.remove('d-none');
+                filterButtons.classList.remove('d-none');
             } else {
+                // Hide filter fields and buttons
                 filterFields.classList.add('d-none');
+                filterButtons.classList.add('d-none');
+                
+                // Clear filter inputs when switching off
+                filterEmail.value = ''; // Clear email filter
+                filterIP.value = '';    // Clear IP filter
+
+                // Submit the form with no filters applied when toggled off
+                const form = document.getElementById('filterForm');
+                form.submit(); // This will reload the page without any filters
             }
         });
 
-        function resetForm() {
-            filterSwitch.checked = false;
-            filterFields.classList.add('d-none');
-        }
+        // Reset button action
+        document.getElementById('resetButton').addEventListener('click', () => {
+            filterEmail.value = ''; // Clear email filter
+            filterIP.value = '';    // Clear IP filter
+        });
     </script>
 </body>
 </html>

@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['updatePassword'])) {
             $actionType = 'Password_Change';
             $actionTime = date('Y-m-d H:i:s');
     
-            $logStmt = $pdo->prepare("INSERT INTO people_action (actioned_by, altered_to, actionType, notes, action_time) 
+            $logStmt = $pdo->prepare("INSERT INTO people_action (actioned_by, altered_for, actionType, notes, action_time) 
                                       VALUES (?, ?, ?, ?, ?)");
             $logStmt->execute([$adminEmail, $userEmail, $actionType, $reason, $actionTime]);
     

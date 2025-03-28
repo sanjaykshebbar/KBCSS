@@ -239,3 +239,78 @@ CREATE TABLE `semester_info` (
   PRIMARY KEY (`sem_id`),
   UNIQUE KEY `semester` (`semester`)
 ) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci
+
+
+
+
+CREATE TABLE books (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    author VARCHAR(255),
+    description TEXT,
+    category VARCHAR(255),
+    image_path VARCHAR(255),
+    status ENUM('available', 'assigned', 'archived') DEFAULT 'available',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE BookCategories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    category_name VARCHAR(255) NOT NULL,
+    sub_category VARCHAR(255)
+);
+
+
+
+
+-- Create the table
+CREATE TABLE BookCategories (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    category_name VARCHAR(255) NOT NULL,
+    sub_category VARCHAR(255) NOT NULL
+);
+
+-- Insert the data
+INSERT INTO BookCategories (category_name, sub_category) VALUES
+('Fiction', 'Literary Fiction'),
+('Fiction', 'Mystery/Thriller'),
+('Fiction', 'Science Fiction (Sci-Fi)'),
+('Fiction', 'Fantasy'),
+('Fiction', 'Romance'),
+('Fiction', 'Historical Fiction'),
+('Fiction', 'Horror'),
+('Fiction', 'Dystopian'),
+('Non-Fiction', 'Biography/Autobiography'),
+('Non-Fiction', 'Memoir'),
+('Non-Fiction', 'Self-Help'),
+('Non-Fiction', 'History'),
+('Non-Fiction', 'Travel'),
+('Non-Fiction', 'Science'),
+('Non-Fiction', 'Philosophy'),
+('Non-Fiction', 'Business/Finance'),
+('Non-Fiction', 'Cooking'),
+('Non-Fiction', 'Art'),
+('Non-Fiction', 'True Crime'),
+('Others', 'Graphic Novels/Comics'),
+('Others', 'Poetry'),
+('Others', 'Drama'),
+('Others', 'Spiritual/Religious'),
+('Others', 'Essays'),
+('Others', 'Children''s Books'),
+('Others', 'Educational'),
+('Others', 'Hobbies/Interests');
+
+
+
+
+ALTER TABLE `books` 
+ADD COLUMN `book_status` ENUM('Available', 'Archived', 'Removed') NOT NULL DEFAULT 'Available';
+
+
+
+CREATE TABLE downloads (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    book_id INT NOT NULL,
+    user_email VARCHAR(255) NOT NULL,
+    download_time DATETIME DEFAULT CURRENT_TIMESTAMP
+);
